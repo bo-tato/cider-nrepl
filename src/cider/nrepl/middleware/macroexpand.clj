@@ -113,15 +113,10 @@
   context of the given :ns, using the provided :expander and :display-namespaces
   options."
   [{:keys [code expander ns] :as msg}]
-  (with-bindings {clojure.lang.Compiler/LOADER
-                  (if (instance? clojure.lang.Var$Unbound
-                                 @clojure.lang.Compiler/LOADER)
-                    (clojure.lang.DynamicClassLoader. (clojure.lang.RT/baseLoader))
-                    @clojure.lang.Compiler/LOADER)}
-    (->> (let [expander-fn (resolve-expander-clj expander)]
-           (binding [*ns* (find-ns ns)]
-             (expander-fn (read-string code))))
-         (walk/prewalk (post-expansion-walker-clj msg)))))
+  (->> (let [expander-fn (resolve-expander-clj expander)]
+         (binding [*ns* (find-ns ns)]
+           (expander-fn (read-string code))))
+       (walk/prewalk (post-expansion-walker-clj msg))))
 
 ;; ClojureScript impl
 
